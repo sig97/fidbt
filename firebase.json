@@ -1,0 +1,5 @@
+{
+  "firebase": "nonradioactive",
+  "public": "app",
+  "rules": "config\\security-rules.json"
+}
