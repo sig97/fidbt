@@ -4,11 +4,11 @@
 
 angular.module('myApp.controllers', ['firebase'])
    .controller('HomeCtrl', ['$scope', 'syncData', 'sensorData', 'firebaseRef', function($scope, syncData, sensorData, firebaseRef) {
-	  $scope.step = "6000";
-	  $scope.dataPoints = "400";
+	  $scope.step = "20";
+	  $scope.dataPoints = "600";
 	  
-      syncData('syncedValue').$bind($scope, 'syncedValue');
-	  syncData('syncedValue').$bind($scope, 'ghDeviceNames');
+     syncData('settings/filter').$bind($scope, 'ghFilter');
+	  syncData('settings/filter').$bind($scope, 'ghDeviceNames');
 	  syncData('settings/step').$bind($scope, 'step');
 	  syncData('settings/step').$bind($scope, 'ghStep');	  
 	  syncData('settings/datapoints').$bind($scope, 'dataPoints');
@@ -16,44 +16,77 @@ angular.module('myApp.controllers', ['firebase'])
 	  syncData('settings/dataOffset').$bind($scope, 'dataOffset');
 	  syncData('settings/dataOffset').$bind($scope, 'ghDataOffset');	
 	  
-	 
-	  
-	  function getRandomInt(min, max) {
-		return Math.floor(Math.random() * (max - min + 1) + min);
-	  }
-	  
+	  $scope.sensors = syncData('settings/sensors');
+
+     var filterString = syncData('settings/filter');
+     filterString.$on("loaded", function() {
+         var name = $scope.ghFilter.split(",")[0];
+         //console.log("Getting latest timestamp for sensor: " + name);
+
+         // get latest reading
+         var latestValue = syncData('readings/' + name, 1);
+         latestValue.$on("loaded", function() {
+            var latestEntry = getOneValue(latestValue);
+
+            if(latestEntry == undefined || latestEntry.date == undefined) {
+               console.log("No latest sensor data for " + name + " found.");
+               return;
+            }
+            var timeDiff = Date.now() - latestEntry.date;
+
+            var timeOffset = (timeDiff / 1000 / 60);
+            if(timeOffset > +$scope.step && +$scope.ghDataOffset < timeOffset ) {
+               console.log("Auto changing time offset to latest values for " + name + " to: " + timeOffset);               
+               $scope.ghDataOffset = timeOffset.toFixed(0);
+            }
+            
+         });         
+     });
+
+     function getOneValue(items) {
+            var returnValue;
+            items.$getIndex().some(function(key, i) { 
+               // Any value will do
+               returnValue = items[key];
+               return true;
+            });
+            return returnValue;
+     }
+
 /*
-	  var sensor = syncData('readings/S1');
-	  sensor.$on("loaded", function() {        
-		  var maxValues = 1000;
+     // Get sensor config
+     var sensors =  $scope.sensors;
+     sensors.$on("loaded", function() {
+         var keys = sensors.$getIndex();
+         keys.forEach(function(key, i) {
+            console.log(i, sensors[key]); // prints items in order they appear in Firebase     
+         });         
+     });
+     */
+
+     function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+     }
+
+/*
+//Populate data in firebase
+     var sensor = syncData('readings/S1');
+     sensor.$on("loaded", function() {        
+        var maxValues = 1000;
         var timeBetweenSteps = 60000;
         var simValues = Smooth([20, 22, 35, 45, 30], { scaleTo: [0, maxValues] });
         var dateMillis = Date.now() - (maxValues*timeBetweenSteps);
         var lastValue = 0;
-		  for(var i=0; i<maxValues; i++) {
+        for(var i=0; i<maxValues; i++) {
           sensor.$add({}).then(function(p) {
                p.setWithPriority({date: dateMillis, value: simValues(++lastValue).toFixed(2)}, dateMillis);
                dateMillis += 5000;
           });
-		  }
-	  });
-  */   
-	  
-	  //$scope.rawData = '';
-	  $scope.sensors = syncData('settings/sensors');
-	  	  	  
-	  //$scope.readings = readings;
-//	  var totalValues = [];	  
-//	  readings.$on("loaded", function() {
-//		var keys = readings.$getIndex();
-//		keys.forEach(function(key, i) {
-//			console.log(i, readings[key]); // prints items in order they appear in Firebase		
-//			totalValues.push(readings[key]);
-//		});
-//		$scope.rawData = totalValues;
-		//$scope.deviceNames = "BEAM, STZ";
-//	   });
-	  
+        }
+        sensor.$off();
+     });
+  */ 
+
    }])
 
   .controller('ChatCtrl', ['$scope', 'syncData', function($scope, syncData) {

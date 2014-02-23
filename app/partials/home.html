@@ -5,7 +5,7 @@
 <p class="status error" ng-show-auth="error">{{auth.error}}</p>
 
 <div>
-<p>Sensor filter: <input ng-model="syncedValue" type="text" /></p>
+<p>Sensor filter: <input ng-model="ghFilter" type="text" /></p>
 </div>
 
 
@@ -22,7 +22,7 @@
 <div class = "footer">
 
 <p>Time between steps (s): <input placeholder="60000..." ng-model="step" type="text" size="7"/> 
-Data points: <input placeholder="400..." ng-model="dataPoints" type="text" size="7"/>
+Data points: <input placeholder="400..." ng-model="dataPoints" type="text" size="7" disable/>
 Data offset (min): <input placeholder="0..." ng-model="dataOffset" type="text" size="7"/>
 </p>
 
@@ -30,5 +30,5 @@ Available sensors:
 <b><span ng-repeat="sensor in sensors">{{sensor.name}}<span ng-show=" ! $last ">, </span></span ></b>
 </div>
 
-<p>Open <a ng-href="{{FBURL}}/syncedValue">Forge</a> to see this input update in real time:</p>
+<p>Open <a ng-href="{{FBURL}}">Forge</a> to check firebase values</p>
 

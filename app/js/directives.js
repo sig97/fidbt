@@ -167,6 +167,7 @@ angular.module('myApp.directives', [])
 			var newOffset = +newVal * 1000 * 60; // convert to sek
 			if(newOffset != serverDelay) {
 				// convert to minutes
+				console.log("redraw using new time offset: " + newVal);
 				createContext(stepSize, dataSize, newVal*1000*60);
 				redraw_graph();
 			}
