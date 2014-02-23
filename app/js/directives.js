@@ -15,7 +15,7 @@ angular.module('myApp.directives', [])
 	var margin = 20,
     width = 960,
     height = 500 - .5 - margin,
-	stepSize = 0, dataSize = 0, serverDelay=5e3;
+	stepSize = 0, dataSize = 0, serverDelay=0;
 	
 	return {
       restrict: 'E',
@@ -32,10 +32,10 @@ angular.module('myApp.directives', [])
         // You can use this formula to calculate the offset:
         // [ { Number of minutes elapsed today }
         // - { Time your data ends in minutes(in this case 4:30 PM or 960 minutes) + 10 } ]
-        var offset_mins = ((60*current_date.getHours()) + current_date.getMinutes()) - 970;
+//        var offset_mins = ((60*current_date.getHours()) + current_date.getMinutes()) - 970;
 
         // Don't forget to convert this to milliseconds!
-        var offset_millis = offset_mins * 60 * 1000; 
+//        var offset_millis = offset_mins * 60 * 1000; 
 							
 		var vis = d3.select(elm[0]);
 		
@@ -45,17 +45,22 @@ angular.module('myApp.directives', [])
 			console.log("stepSize: " + newStepSize + ", dataSize: " + newDataSize);	
 			dataSize = newDataSize;	
 			stepSize = newStepSize;
+			serverDelay = +newOffset;
 			if (!(+newStepSize > 0 && +newDataSize > 0)) {
 				console.log("resetting context");
 				vis.selectAll('*').remove();
 				if(context) {context.stop(); context = null; }
 				return;
 			}
+			console.log("server delay=" + serverDelay);
+			
 			context = cubism.context()
 				.step(stepSize) // Distance between data points in milliseconds
 				.size(dataSize) // Number of data points
-				.serverDelay(5e3);
-				//.stop(); // Fetching from a static data source; don't update values
+				.serverDelay(serverDelay)
+				.stop(); // Skip live updates for historical data 
+			
+
 				
 			// On mousemove, reposition the chart values to match the rule.
 			context.on("focus", function(i) {
@@ -148,8 +153,8 @@ angular.module('myApp.directives', [])
 			}
 			elm[0].setAttribute('step', newVal);
 			
-			newVal = +newVal*1000; // convert to ms
-			createContext(newVal, dataSize, serverDelay);
+			newVal = +newVal; // convert to ms
+			createContext(newVal*1000, dataSize, serverDelay);
 			redraw_graph();
 		});
 		
@@ -157,11 +162,16 @@ angular.module('myApp.directives', [])
 			if(!newVal || newVal == oldVal) {
 				return;
 			}
-			//elm[0].setAttribute('dataoffset', newVal);
-			//createContext(newVal, dataSize, newVal);
-			//redraw_graph();
+
+			elm[0].setAttribute('dataoffset', newVal);
+			var newOffset = +newVal * 1000 * 60; // convert to sek
+			if(newOffset != serverDelay) {
+				// convert to minutes
+				createContext(stepSize, dataSize, newVal*1000*60);
+				redraw_graph();
+			}
 		});
-			//draw_graph(["BEAM", "BF.B", "STZ"]);
+
       }
 	};
   }]);

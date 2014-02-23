@@ -2,8 +2,8 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', [])
-   .controller('HomeCtrl', ['$scope', 'syncData', 'sensorData', function($scope, syncData, sensorData) {
+angular.module('myApp.controllers', ['firebase'])
+   .controller('HomeCtrl', ['$scope', 'syncData', 'sensorData', 'firebaseRef', function($scope, syncData, sensorData, firebaseRef) {
 	  $scope.step = "6000";
 	  $scope.dataPoints = "400";
 	  
@@ -16,23 +16,30 @@ angular.module('myApp.controllers', [])
 	  syncData('settings/dataOffset').$bind($scope, 'dataOffset');
 	  syncData('settings/dataOffset').$bind($scope, 'ghDataOffset');	
 	  
-	  var dateMillis = new Date().getMilliseconds();
+	 
 	  
 	  function getRandomInt(min, max) {
 		return Math.floor(Math.random() * (max - min + 1) + min);
 	  }
 	  
-//	  var sensor = syncData('readings/BEAM');
-//	  sensor.$on("loaded", function() {
-//		  var maxValues = 200;
-//		  dateMillis = dateMillis - (maxValues*5000);
-//		  for(var i=0; i<maxValues; i++) {
-//		    dateMillis = dateMillis + 5000;
-//			sensor.$add({date: dateMillis, value: getRandomInt(55, 100)});
-//		  }
-//	  });
+/*
+	  var sensor = syncData('readings/S1');
+	  sensor.$on("loaded", function() {        
+		  var maxValues = 1000;
+        var timeBetweenSteps = 60000;
+        var simValues = Smooth([20, 22, 35, 45, 30], { scaleTo: [0, maxValues] });
+        var dateMillis = Date.now() - (maxValues*timeBetweenSteps);
+        var lastValue = 0;
+		  for(var i=0; i<maxValues; i++) {
+          sensor.$add({}).then(function(p) {
+               p.setWithPriority({date: dateMillis, value: simValues(++lastValue).toFixed(2)}, dateMillis);
+               dateMillis += 5000;
+          });
+		  }
+	  });
+  */   
 	  
-	  $scope.rawData = '';
+	  //$scope.rawData = '';
 	  $scope.sensors = syncData('settings/sensors');
 	  	  	  
 	  //$scope.readings = readings;
