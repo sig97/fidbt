@@ -23,7 +23,7 @@ angular.module('myApp.directives', [])
         devices: '=',
 		dataoffset: '=',
 		datapoints: '=',
-		step: '='
+		steptime: '='
       },
       link: function (scope, elm, attrs) {
 
@@ -46,10 +46,11 @@ angular.module('myApp.directives', [])
 			dataSize = newDataSize;	
 			stepSize = newStepSize;
 			serverDelay = +newOffset;
+
+			console.log("resetting context");
+			vis.selectAll('*').remove();
+			if(context) {context.stop(); context = null; }
 			if (!(+newStepSize > 0 && +newDataSize > 0)) {
-				console.log("resetting context");
-				vis.selectAll('*').remove();
-				if(context) {context.stop(); context = null; }
 				return;
 			}
 			console.log("server delay=" + serverDelay);
@@ -128,7 +129,7 @@ angular.module('myApp.directives', [])
 	  
 	  	scope.$watch('devices', function (newVal, oldVal) {
 			//alert(newVal);
-			if(!newVal) {
+			if(!newVal || newVal == oldVal) {
 				return;
 			}
 			elm[0].setAttribute('devices', newVal);
@@ -138,7 +139,7 @@ angular.module('myApp.directives', [])
 		});
 		
 		scope.$watch('datapoints', function (newVal, oldVal) {
-			if(!newVal) {
+			if(!newVal || newVal == oldVal) {
 				return;
 			}
 			elm[0].setAttribute('dataPoints', newVal);
@@ -147,11 +148,11 @@ angular.module('myApp.directives', [])
 			redraw_graph();
 		});
 		
-		scope.$watch('step', function (newVal, oldVal) {
-			if(!newVal) {
+		scope.$watch('steptime', function (newVal, oldVal) {
+			if(!newVal || newVal == oldVal) {
 				return;
 			}
-			elm[0].setAttribute('step', newVal);
+			elm[0].setAttribute('steptime', newVal);
 			
 			newVal = +newVal; // convert to ms
 			createContext(newVal*1000, dataSize, serverDelay);

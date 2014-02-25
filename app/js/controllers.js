@@ -4,12 +4,12 @@
 
 angular.module('myApp.controllers', ['firebase', 'vr.directives.slider'])
    .controller('HomeCtrl', ['$scope', 'syncData', '$timeout', function($scope, syncData, $timeout) {
-	  $scope.step = "0";
+	  $scope.stepSize = "0";
 	  $scope.dataPoints = "600";
 	  
     syncData('settings/filter').$bind($scope, 'ghFilter');
 	  syncData('settings/filter').$bind($scope, 'ghDeviceNames');
-	  syncData('settings/step').$bind($scope, 'step');
+	  syncData('settings/step').$bind($scope, 'stepSize');
 	  syncData('settings/step').$bind($scope, 'ghStep');	  
 	  syncData('settings/datapoints').$bind($scope, 'dataPoints');
 	  syncData('settings/datapoints').$bind($scope, 'ghDataPoints');	  
@@ -36,7 +36,7 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider'])
             var timeDiff = Date.now() - latestEntry.date;
 
             var timeOffset = (timeDiff / 1000 / 60);
-            if(timeOffset > +$scope.step && +$scope.ghDataOffset < timeOffset ) {
+            if(timeOffset > +$scope.stepSize && +$scope.ghDataOffset < timeOffset ) {
                console.log("Auto changing time offset to latest values for " + name + " to: " + timeOffset);               
                $scope.ghDataOffset = timeOffset.toFixed(0);
             }
@@ -54,27 +54,54 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider'])
             return returnValue;
      }
 
-      $scope.translateSecTime = function(value) {
-        return value + ' sec';
-      };
+      //$scope.translateSecTime = function(value) {
+      //  return value + ' sec';
+      //};
       $scope.translateMinTime = function(value) {
         return value + ' min';
       };
       $scope.translateHourTime = function(value) {
         return value + ' hours';
       };
+      $scope.translateDayTime = function(value) {
+        return value + ' days';
+      };
 
+
+      // Add one second delay to sliders before applying new value, to avoid fetching from database
       function updateStepSeconds() {
-        $scope.step = $scope.ghHourSlider * 60 * 60 + $scope.ghMinSlider * 60 + $scope.ghSecSlider;
+        var periodInSeconds = $scope.ghDaySlider * 24 * 60 * 60 + $scope.ghHourSlider * 60 * 60 + $scope.ghMinSlider * 60;
+        $scope.stepSize = (periodInSeconds / $scope.dataPoints).toFixed(); 
+        // + $scope.ghSecSlider;
       }
 
       syncData('settings/step').$on("loaded", function() {
-        console.log("step value loaded."); 
-          $scope.ghSecSlider = $scope.step % 60; //initial value
-          $scope.ghMinSlider = ($scope.step/60) % 60; //initial value
-          $scope.ghHourSlider = ($scope.step/3600) % 24; //initial value      
+        syncData('settings/datapoints').$on("loaded", function() {
+          console.log("stepSize value loaded."); 
+          
+          //initial values
+          //$scope.ghSecSlider = $scope.stepSize % 60; 
+          var newMin = ($scope.dataPoints * $scope.stepSize/60) % 60;
+          var newHour = ($scope.dataPoints * $scope.stepSize/3600) % 24;
+          var newDay = Math.floor($scope.dataPoints * $scope.stepSize/3600/24);
+          if(newMin != $scope.ghMinSlider) {
+            console.log("New minutes=" + newMin);
+            $scope.ghMinSlider = newMin;  
+          }
+          if(newHour != $scope.ghHourSlider) {
+            console.log("New hour=" + newHour);
+            $scope.ghHourSlider = newHour;
+          }
+          
+          if(newDay != $scope.ghDaySlider) {
+            console.log("New days=" + newDay);
+            $scope.ghDaySlider = newDay;
+          }
+  
+        });    
       });
 
+/*
       var secDelay;
       $scope.$watch('ghSecSlider', function() { 
           console.log("Changing seconds...");
@@ -83,7 +110,7 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider'])
             updateStepSeconds();
           }, 1000);
 
-      }, true);
+      }, true);*/
 
       var minDelay;
       $scope.$watch('ghMinSlider', function() { 
@@ -98,6 +125,15 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider'])
       $scope.$watch('ghHourSlider', function() { 
           cancelTimer(hourDelay);
           hourDelay = $timeout( function() {
+            updateStepSeconds();
+          }, 1000);
+
+      }, true);
+
+      var dayDelay;
+      $scope.$watch('ghDaySlider', function() { 
+          cancelTimer(dayDelay);
+          dayDelay = $timeout( function() {
             updateStepSeconds();
           }, 1000);
 
