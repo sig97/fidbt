@@ -2,12 +2,12 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', ['firebase'])
-   .controller('HomeCtrl', ['$scope', 'syncData', 'sensorData', 'firebaseRef', function($scope, syncData, sensorData, firebaseRef) {
-	  $scope.step = "20";
+angular.module('myApp.controllers', ['firebase', 'vr.directives.slider'])
+   .controller('HomeCtrl', ['$scope', 'syncData', '$timeout', function($scope, syncData, $timeout) {
+	  $scope.step = "0";
 	  $scope.dataPoints = "600";
 	  
-     syncData('settings/filter').$bind($scope, 'ghFilter');
+    syncData('settings/filter').$bind($scope, 'ghFilter');
 	  syncData('settings/filter').$bind($scope, 'ghDeviceNames');
 	  syncData('settings/step').$bind($scope, 'step');
 	  syncData('settings/step').$bind($scope, 'ghStep');	  
@@ -22,6 +22,7 @@ angular.module('myApp.controllers', ['firebase'])
      filterString.$on("loaded", function() {
          var name = $scope.ghFilter.split(",")[0];
          //console.log("Getting latest timestamp for sensor: " + name);
+
 
          // get latest reading
          var latestValue = syncData('readings/' + name, 1);
@@ -40,7 +41,7 @@ angular.module('myApp.controllers', ['firebase'])
                $scope.ghDataOffset = timeOffset.toFixed(0);
             }
             
-         });         
+         });
      });
 
      function getOneValue(items) {
@@ -52,6 +53,62 @@ angular.module('myApp.controllers', ['firebase'])
             });
             return returnValue;
      }
+
+      $scope.translateSecTime = function(value) {
+        return value + ' sec';
+      };
+      $scope.translateMinTime = function(value) {
+        return value + ' min';
+      };
+      $scope.translateHourTime = function(value) {
+        return value + ' hours';
+      };
+
+      function updateStepSeconds() {
+        $scope.step = $scope.ghHourSlider * 60 * 60 + $scope.ghMinSlider * 60 + $scope.ghSecSlider;
+      }
+
+      syncData('settings/step').$on("loaded", function() {
+        console.log("step value loaded."); 
+          $scope.ghSecSlider = $scope.step % 60; //initial value
+          $scope.ghMinSlider = ($scope.step/60) % 60; //initial value
+          $scope.ghHourSlider = ($scope.step/3600) % 24; //initial value      
+      });
+
+      var secDelay;
+      $scope.$watch('ghSecSlider', function() { 
+          console.log("Changing seconds...");
+          cancelTimer(secDelay);
+          secDelay = $timeout( function() {
+            updateStepSeconds();
+          }, 1000);
+
+      }, true);
+
+      var minDelay;
+      $scope.$watch('ghMinSlider', function() { 
+          cancelTimer(minDelay);
+          minDelay = $timeout( function() {
+            updateStepSeconds();
+          }, 1000);
+
+      }, true);
+
+      var hourDelay;
+      $scope.$watch('ghHourSlider', function() { 
+          cancelTimer(hourDelay);
+          hourDelay = $timeout( function() {
+            updateStepSeconds();
+          }, 1000);
+
+      }, true);
+
+      function cancelTimer(timerFunction) {
+        if(typeof timerFunction !== 'undefined') {
+          $timeout.cancel(timerFunction);
+        }
+      }
+
 
 /*
      // Get sensor config

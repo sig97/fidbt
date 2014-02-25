@@ -19,10 +19,42 @@
 
 <gh-visualization id="demo" devices="ghDeviceNames" dataoffset="ghDataOffset" step="ghStep" datapoints="ghDataPoints"></gh-visualization>
 
+
+<div id='slider-container'>
+<slider
+    ng-model="ghSecSlider"
+    floor="0"
+    ceiling="60"
+    step="1"
+    precision="0"
+    stretch="3"
+    translate="translateSecTime"
+    ng-change="updateSec">
+</slider>
+<slider
+    ng-model="ghMinSlider"
+    floor="0"
+    ceiling="60"
+    step="1"
+    precision="0"
+    stretch="3"
+    translate="translateMinTime" id="medium">
+</slider>
+<slider
+    ng-model="ghHourSlider"
+    floor="0"
+    ceiling="168"
+    step="1"
+    precision="0"
+    stretch="3"
+    translate="translateHourTime" id="heavy">
+</slider>
+</div>
+
 <div class = "footer">
 
-<p>Time between steps (s): <input placeholder="60000..." ng-model="step" type="text" size="7"/> 
-Data points: <input placeholder="400..." ng-model="dataPoints" type="text" size="7" disable/>
+<p>Time between steps (s): <input placeholder="60000..." ng-model="step" type="text" size="7" disabled/> 
+Data points: <input placeholder="400..." ng-model="dataPoints" type="text" size="7" disabled/>
 Data offset (min): <input placeholder="0..." ng-model="dataOffset" type="text" size="7"/>
 </p>
 
