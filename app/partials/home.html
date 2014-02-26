@@ -1,6 +1,5 @@
-<h2>Home</h2>
-
 <!--p class="status good" ng-show-auth="login">Hello! You are logged in.</p-->
+<div class="page-container">
 <p class="status" ng-show-auth="logout">Please log in!</p>
 <p class="status error" ng-show-auth="error">{{auth.error}}</p>
 
@@ -8,68 +7,68 @@
 <p>Sensor filter: <input ng-model="ghFilter" type="text" /></p>
 </div>
 
+<!--div align="right"><span ng-show="dataOffset>0">{{endDate}}</span><span ng-show="dataOffset==0">now</span></div-->
 
-<!--ul id="readings" ng-show="readings">
-    <li ng-repeat="reading in readings | orderByPriority | reverse">{{reading.date}}, {{reading.value}}</li>
-</ul-->
-
-<b>{{rawData}}</b>
-
-<p/>
-
+<div>
 <gh-visualization id="demo" devices="ghDeviceNames" dataoffset="ghDataOffset" steptime="ghStep" datapoints="ghDataPoints"></gh-visualization>
-
-
-<div id='slider-container'>
-<!--slider
-    ng-model="ghSecSlider"
-    floor="0"
-    ceiling="59"
-    step="1"
-    precision="0"
-    stretch="3"
-    translate="translateSecTime"
-    ng-change="updateSec">
-</slider-->
-<slider
-    ng-model="ghMinSlider"
-    floor="0"
-    ceiling="59"
-    step="1"
-    precision="0"
-    stretch="3"
-    translate="translateMinTime">
-</slider>
-<slider
-    ng-model="ghHourSlider"
-    floor="0"
-    ceiling="23"
-    step="1"
-    precision="0"
-    stretch="3"
-    translate="translateHourTime" id="medium">
-</slider>
-<slider
-    ng-model="ghDaySlider"
-    floor="0"
-    ceiling="30"
-    step="1"
-    precision="0"
-    stretch="3"
-    translate="translateDayTime" id="heavy">
-</slider>
 </div>
 
-<div class = "footer">
 
-<p>Time between steps (s): <input placeholder="60000..." ng-model="stepSize" type="text" size="7" disabled/> 
-Data points: <input placeholder="400..." ng-model="dataPoints" type="text" size="7" disabled/>
-Data offset (min): <input placeholder="0..." ng-model="dataOffset" type="text" size="7"/>
+<div style="padding: 19px">
+<button class="btn btn-default" ng-click="collapsedSettings = !collapsedSettings" style="margin-bottom: 5px">
+	<span class="glyphicon glyphicon-chevron-down" ng-show="!collapsedSettings"></span>
+	<span class="glyphicon glyphicon-chevron-right" ng-show="collapsedSettings"></span> Time Settings</button>
+
+<div collapse="collapsedSettings">
+	<div class="well" id='slider-container'> 
+	<slider
+	    ng-model="ghMinSlider"
+	    floor="0"
+	    ceiling="59"
+	    step="1"
+	    precision="0"
+	    stretch="3"
+	    translate="translateMinTime">
+	</slider>
+	<slider
+	    ng-model="ghHourSlider"
+	    floor="0"
+	    ceiling="23"
+	    step="1"
+	    precision="0"
+	    stretch="3"
+	    translate="translateHourTime" id="medium">
+	</slider>
+	<slider
+	    ng-model="ghDaySlider"
+	    floor="0"
+	    ceiling="30"
+	    step="1"
+	    precision="0"
+	    stretch="3"
+	    translate="translateDayTime" id="heavy">
+	</slider>
+
+
+<p>Time between steps: <em>{{stepSize}}</em> seconds <span class="glyphicon glyphicon-flash"></span> 
+Steps shown: <em>{{dataPoints}}</em> <span class="glyphicon glyphicon-flash"></span>
+Offset: <input placeholder="0..." ng-model="dataOffset" type="text" size="7"/> minutes
 </p>
 
+	</div>
+</div>
+
+</div>
+
+
+<!--div class = "footer"-->
 Available sensors:
 <b><span ng-repeat="sensor in sensors">{{sensor.name}}<span ng-show=" ! $last ">, </span></span ></b>
 </div>
 
+</div>
+
+<div style="display:inline-block;">
 <p>Open <a ng-href="{{FBURL}}">Forge</a> to check firebase values</p>
+</div>
 

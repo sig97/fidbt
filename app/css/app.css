@@ -191,14 +191,15 @@ slider {
     position:       relative;
     height:         30px;
     width:          500px;
-    margin:         25px 0 25px 100px;
+    margin:         25px 0 25px 20px;
     vertical-align: middle;
   }
 
   slider span.bar {
     height:     50%;
     z-index:    0;
-    background: #eee;
+    background: #e3e3e3;
+    outline: 1px black;
     left:       0;
     top: 25%;
     cursor: pointer;
@@ -271,3 +272,16 @@ slider {
     -ms-user-select: none;
     user-select: none;
   }
+
+
+  .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+.page-container {
+    background: #fff;
+    font-size: 14px;
+    float: left;
+    margin: 30px 0 50px 45px;
+    padding:5px;
+    width: 650px;
+    position: relative;
+}

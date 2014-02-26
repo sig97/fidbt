@@ -2,10 +2,13 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', ['firebase', 'vr.directives.slider'])
+angular.module('myApp.controllers', ['firebase', 'vr.directives.slider', 'ui.bootstrap'])
    .controller('HomeCtrl', ['$scope', 'syncData', '$timeout', function($scope, syncData, $timeout) {
 	  $scope.stepSize = "0";
 	  $scope.dataPoints = "600";
+    $scope.dataOffset = 0;
+    $scope.collapsedSettings = false;
+    $scope.endDate = "Feb. 25"; //TODO
 	  
     syncData('settings/filter').$bind($scope, 'ghFilter');
 	  syncData('settings/filter').$bind($scope, 'ghDeviceNames');
@@ -82,7 +85,7 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider'])
           //initial values
           //$scope.ghSecSlider = $scope.stepSize % 60; 
           var newMin = ($scope.dataPoints * $scope.stepSize/60) % 60;
-          var newHour = ($scope.dataPoints * $scope.stepSize/3600) % 24;
+          var newHour = Math.floor( ($scope.dataPoints * $scope.stepSize/3600) % 24 );
           var newDay = Math.floor($scope.dataPoints * $scope.stepSize/3600/24);
           if(newMin != $scope.ghMinSlider) {
             console.log("New minutes=" + newMin);
