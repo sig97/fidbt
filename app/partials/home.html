@@ -1,31 +1,61 @@
 <!--p class="status good" ng-show-auth="login">Hello! You are logged in.</p-->
 <div class="page-container">
-<p class="status" ng-show-auth="logout">Please log in!</p>
-<p class="status error" ng-show-auth="error">{{auth.error}}</p>
 
-<div>
-<p>Sensor filter: <input ng-model="ghFilter" type="text" /></p>
+
+<!--div class="alert alert-warning" ng-show-auth="logout">
+  Please log in!
+</div-->
+
+<div class="alert alert-danger" ng-show-auth="error">
+  {{auth.error}}
 </div>
 
-<!--div align="right"><span ng-show="dataOffset>0">{{endDate}}</span><span ng-show="dataOffset==0">now</span></div-->
+<h1>Sunshine feed: <small>comparing light levels</small></h1>
+
+<div class="input-group grouped">
+  <label class="sr-only" for="datasourceFilter">Datasource filter</label>
+  <span class="input-group-addon">Datasources:</span>
+  <input type="text" class="form-control" ng-model="ghDeviceNames" type="text" placeholder="List of datasources..." id="datasourceFilter">
+</div>
+
+<!--div align="right"><span ng-show="ghDataOffset>0">{{endDate}}</span><span ng-show="ghDataOffset==0">now</span></div-->
 
 <div>
-<gh-visualization id="demo" devices="ghDeviceNames" dataoffset="ghDataOffset" steptime="ghStep" datapoints="ghDataPoints"></gh-visualization>
+<gh-visualization id="demo" devices="ghDeviceNames" dataoffset="ghDataOffset" steptime="ghStepSize" datapoints="ghDataPoints"></gh-visualization>
 </div>
 
 
-<div style="padding: 19px">
-<button class="btn btn-default" ng-click="collapsedSettings = !collapsedSettings" style="margin-bottom: 5px">
+<div class="grouped">
+<div class ="collapseButton">
+<button class="btn btn-default" ng-click="collapsedSettings = !collapsedSettings">
 	<span class="glyphicon glyphicon-chevron-down" ng-show="!collapsedSettings"></span>
 	<span class="glyphicon glyphicon-chevron-right" ng-show="collapsedSettings"></span> Time Settings</button>
+</div>
 
 <div collapse="collapsedSettings">
 	<div class="well" id='slider-container'> 
+
+<div class="row">
+	<div class="col-sm-4 col-sm-push-8" >
+			<div ng-model="dt" ng-change="changedTime()" >
+				<timepicker hour-step="hstep" minute-step="mstep" show-meridian="false"></timepicker>
+			</div>
+		</div>
+		<div class="input-group col-sm-8 col-sm-pull-4 timepicker-align">
+			<span class="input-group-addon" tooltip="Showing values until this date">End date:</span>
+            <input type="text" class="form-control" datepicker-popup="{{dateFormat}}" ng-model="dt" is-open="calOpened" ng-required="true" close-text="Close" datepicker-options="dateOptions" />
+            <span class="input-group-btn">
+            	<button class="btn btn-default" ng-click="calOpen($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+            </span>
+	    </div>		
+</div>
+
+<div>
 	<slider
 	    ng-model="ghMinSlider"
 	    floor="0"
-	    ceiling="59"
-	    step="1"
+	    ceiling="50"
+	    step="{{mstep}}"
 	    precision="0"
 	    stretch="3"
 	    translate="translateMinTime">
@@ -48,27 +78,22 @@
 	    stretch="3"
 	    translate="translateDayTime" id="heavy">
 	</slider>
+</div>
 
-
-<p>Time between steps: <em>{{stepSize}}</em> seconds <span class="glyphicon glyphicon-flash"></span> 
-Steps shown: <em>{{dataPoints}}</em> <span class="glyphicon glyphicon-flash"></span>
-Offset: <input placeholder="0..." ng-model="dataOffset" type="text" size="7"/> minutes
-</p>
+	<p>Showing <em>{{ghDataPoints}}</em> values with a <em>{{ghStepSize}}</em> second time interval 
+	<span class="glyphicon glyphicon-flash"></span> Time offset: <em>{{ghDataOffset}}</em> minutes
+	</p>
 
 	</div>
 </div>
 
-</div>
-
-
-<!--div class = "footer"-->
 Available sensors:
 <b><span ng-repeat="sensor in sensors">{{sensor.name}}<span ng-show=" ! $last ">, </span></span ></b>
 </div>
 
 </div>
 
-<div style="display:inline-block;">
+<div class = "footer">
 <p>Open <a ng-href="{{FBURL}}">Forge</a> to check firebase values</p>
 </div>
 

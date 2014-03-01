@@ -42,18 +42,16 @@ angular.module('myApp.directives', [])
 		var context;
 				
 		function createContext(newStepSize, newDataSize, newOffset) {
-			console.log("stepSize: " + newStepSize + ", dataSize: " + newDataSize);	
+			console.log("stepSize: " + newStepSize + ", dataSize: " + newDataSize + ", time offset: " + newOffset);	
 			dataSize = newDataSize;	
 			stepSize = newStepSize;
 			serverDelay = +newOffset;
 
-			console.log("resetting context");
 			vis.selectAll('*').remove();
 			if(context) {context.stop(); context = null; }
 			if (!(+newStepSize > 0 && +newDataSize > 0)) {
 				return;
 			}
-			console.log("server delay=" + serverDelay);
 			
 			context = cubism.context()
 				.step(stepSize) // Distance between data points in milliseconds
@@ -139,7 +137,7 @@ angular.module('myApp.directives', [])
 		});
 		
 		scope.$watch('datapoints', function (newVal, oldVal) {
-			if(!newVal || newVal == oldVal) {
+			if(!newVal || newVal == dataSize) {
 				return;
 			}
 			elm[0].setAttribute('dataPoints', newVal);
