@@ -285,6 +285,12 @@ slider {
   margin-bottom: 5px;
 }
 
+.collapseableHeading:hover {
+  background-color: #BAE4B3 !important;
+  cursor: hand;
+  cursor: pointer;
+}
+
 .timepicker-align {
   padding-top: 34px;
 }

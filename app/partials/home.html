@@ -14,7 +14,7 @@
 
 <div class="input-group grouped">
   <label class="sr-only" for="datasourceFilter">Datasource filter</label>
-  <span class="input-group-addon">Datasources:</span>
+  <span class="input-group-addon" tooltip="Sensors to get data from">Datasources:</span>
   <input type="text" class="form-control" ng-model="ghDeviceNames" type="text" placeholder="List of datasources..." id="datasourceFilter">
 </div>
 
@@ -26,65 +26,69 @@
 
 
 <div class="grouped">
-<div class ="collapseButton">
-<button class="btn btn-default" ng-click="collapsedSettings = !collapsedSettings">
+
+<div class="panel panel-default">
+<div class="collapseableHeading panel-heading" ng-click="collapsedSettings = !collapsedSettings">
+	<h3 class="panel-title">
 	<span class="glyphicon glyphicon-chevron-down" ng-show="!collapsedSettings"></span>
-	<span class="glyphicon glyphicon-chevron-right" ng-show="collapsedSettings"></span> Time Settings</button>
+	<span class="glyphicon glyphicon-chevron-right" ng-show="collapsedSettings"></span>
+	&nbsp;&nbsp;Time Settings</h3>
 </div>
 
-<div collapse="collapsedSettings">
-	<div class="well" id='slider-container'> 
+<div collapse="collapsedSettings" class="panel-body">
+	<div id='slider-container'> 
 
-<div class="row">
-	<div class="col-sm-4 col-sm-push-8" >
-			<div ng-model="dt" ng-change="changedTime()" >
-				<timepicker hour-step="hstep" minute-step="mstep" show-meridian="false"></timepicker>
+		<div class="row">
+			<div class="col-sm-4 col-sm-push-8" >
+				<div ng-model="dt" ng-change="changedTime()" >
+					<timepicker hour-step="hstep" minute-step="mstep" show-meridian="false"></timepicker>
+				</div>
 			</div>
+			<div class="input-group col-sm-8 col-sm-pull-4 timepicker-align" style="padding-left: 15px;">
+				<span class="input-group-addon" tooltip="Showing values until this date">End date:</span>
+		        <input type="text" class="form-control" datepicker-popup="{{dateFormat}}" ng-model="dt" is-open="calOpened" ng-required="true" close-text="Close" datepicker-options="dateOptions" />
+		        <span class="input-group-btn">
+		        	<button class="btn btn-default" ng-click="calOpen($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+		        </span>
+		    </div>		
 		</div>
-		<div class="input-group col-sm-8 col-sm-pull-4 timepicker-align">
-			<span class="input-group-addon" tooltip="Showing values until this date">End date:</span>
-            <input type="text" class="form-control" datepicker-popup="{{dateFormat}}" ng-model="dt" is-open="calOpened" ng-required="true" close-text="Close" datepicker-options="dateOptions" />
-            <span class="input-group-btn">
-            	<button class="btn btn-default" ng-click="calOpen($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-            </span>
-	    </div>		
-</div>
 
-<div>
-	<slider
-	    ng-model="ghMinSlider"
-	    floor="0"
-	    ceiling="50"
-	    step="{{mstep}}"
-	    precision="0"
-	    stretch="3"
-	    translate="translateMinTime">
-	</slider>
-	<slider
-	    ng-model="ghHourSlider"
-	    floor="0"
-	    ceiling="23"
-	    step="1"
-	    precision="0"
-	    stretch="3"
-	    translate="translateHourTime" id="medium">
-	</slider>
-	<slider
-	    ng-model="ghDaySlider"
-	    floor="0"
-	    ceiling="30"
-	    step="1"
-	    precision="0"
-	    stretch="3"
-	    translate="translateDayTime" id="heavy">
-	</slider>
-</div>
+		<div>
+			<slider
+			    ng-model="ghMinSlider"
+			    floor="0"
+			    ceiling="50"
+			    step="{{mstep}}"
+			    precision="0"
+			    stretch="3"
+			    translate="translateMinTime">
+			</slider>
+			<slider
+			    ng-model="ghHourSlider"
+			    floor="0"
+			    ceiling="23"
+			    step="1"
+			    precision="0"
+			    stretch="3"
+			    translate="translateHourTime" id="medium">
+			</slider>
+			<slider
+			    ng-model="ghDaySlider"
+			    floor="0"
+			    ceiling="30"
+			    step="1"
+			    precision="0"
+			    stretch="3"
+			    translate="translateDayTime" id="heavy">
+			</slider>
+		</div>
 
 	<p>Showing <em>{{ghDataPoints}}</em> values with a <em>{{ghStepSize}}</em> second time interval 
 	<span class="glyphicon glyphicon-flash"></span> Time offset: <em>{{ghDataOffset}}</em> minutes
 	</p>
 
 	</div>
+</div>
 </div>
 
 Available sensors:
