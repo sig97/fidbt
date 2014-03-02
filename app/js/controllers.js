@@ -169,19 +169,20 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider', 'ui.boo
      */
 
      
-/*
+
 //Populate data in firebase
-     var sensor = syncData('readings/S1');
+/*
+     var sensor = syncData('readings/S2');
      sensor.$on("loaded", function() {        
-        var maxValues = 1000;
+        var maxValues = 6000;
         var timeBetweenSteps = 60000;
-        var simValues = Smooth([20, 22, 35, 45, 30], { scaleTo: [0, maxValues] });
+        var simValues = Smooth([50, 0, 10, 30, 90, 80, 60, 20, 0, 10, 20, 70, 40], { scaleTo: [0, maxValues] });
         var dateMillis = Date.now() - (maxValues*timeBetweenSteps);
         var lastValue = 0;
         for(var i=0; i<maxValues; i++) {
           sensor.$add({}).then(function(p) {
-               p.setWithPriority({date: dateMillis, value: simValues(++lastValue).toFixed(2)}, dateMillis);
-               dateMillis += 5000;
+               p.setWithPriority({date: dateMillis, value: (simValues(++lastValue) + getRandomInt(0, 3)).toFixed(2)}, dateMillis);
+               dateMillis += timeBetweenSteps;
           });
         }
         sensor.$off();
@@ -190,7 +191,8 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider', 'ui.boo
      function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min);
      }
-  */ 
+     */
+   
 
    }])
 

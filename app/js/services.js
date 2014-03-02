@@ -43,27 +43,78 @@
 	        		return;
 	        	}
 
+//				var startTime = new Date().getTime();
+
+				var valueSum = 0;
 	        	for(var goal = start; goal <= stop; goal += step) {
 	        		// Find a reading which is closest to the requested timestamp
-	        		var closestIndex = findClosestValueIndex(dateValues, goal);
-					targetValues.push(+powerValues[closestIndex]);
+	        		var closestIndex = binaryClosestIndexOf.call(dateValues, goal);
+	        		var closestValue = powerValues[closestIndex];
+					targetValues.push(closestValue);
+					valueSum += +closestValue;
 	        	}
+	        	titleCallback(name, name + ": " + (valueSum/1000).toFixed(1));
 	        	//console.log("targetValues: " + targetValues);
-
-
-				if(powerValues.length > 0 ) {
-					var sum = targetValues.reduce(function(a, b) { return a + b });
-					sum = sum/1000;
-					//console.log(sum);
-					titleCallback(name, name + ": " + sum.toFixed(1));
-				}
+	        	
+//	        	var endTime = new Date().getTime();				
+//				console.log('Execution time for ' + name + ': ' + (endTime - startTime));
+				
 				callback(null, targetValues);
 
 	        });
 
 
+			/**
+		     * Performs a binary search on the host array. This method can either be
+		     * injected into Array.prototype or called with a specified scope like this:
+		     * binaryClosestIndexOf.call(someArray, searchElement);
+		     *
+		     * @param {*} searchElement The item to search for within the array.
+		     * @return {Number} The index of the element which defaults to -1 when not found.
+		     */
+		    function binaryClosestIndexOf(searchElement) {
+		        'use strict';
+		    
+		        var minIndex = 0;
+		        var maxIndex = this.length - 1;
+		        var currentIndex;
+		        var currentElement;
+		        var resultIndex;
+		    
+		        while (minIndex <= maxIndex) {
+		                resultIndex = currentIndex = (minIndex + maxIndex) / 2 | 0;
+		                currentElement = this[currentIndex];
+		    
+		                if (currentElement < searchElement) {
+		                        minIndex = currentIndex + 1;
+		                }
+		                else if (currentElement > searchElement) {
+		                        maxIndex = currentIndex - 1;
+		                }
+		                else {
+		                        return currentIndex;
+		                }
+		        }
+		    
+		        //return ~maxIndex;
+		        // Get closest value
+		        var startIndex, endIndex = currentIndex;
+		        if(currentIndex > 0) {
+		        	startIndex = currentIndex - 1;
+		        }
+		        if(currentIndex < this.length -1) {
+		        	endIndex = currentIndex + 1;
+		        }
+		        var closestLocalIndex = linearClosestIndexOf(this.slice(startIndex, 1 + endIndex), searchElement);
+		        if(currentIndex > 0) {
+		        	return currentIndex - 1 + closestLocalIndex;
+		        } else {
+		        	return currentIndex + closestLocalIndex;
+		        }
+		    }
+
 			// Loop through a sorted array to find best match for a goal value, return its array index
-	        function findClosestValueIndex(valueArray, goal) {
+	        function linearClosestIndexOf(valueArray, goal) {
 	        	var closestIndex = 0;
 				var bestDistanceFoundYet = Number.MAX_VALUE;
 				// We iterate on the array...
@@ -78,6 +129,8 @@
 				   		break;
 				   }
 				}
+
+				//console.log("Closest index of " + goal + " in " + valueArray + " is " + closestIndex);
 				return closestIndex;
 	        }
 	
