@@ -27,13 +27,69 @@
 	        .startAt(start)
 	        .endAt(stop)
 	        .once('value', function(snap) {
+	        	var currentIndex = 0, targetTimeValue = start, prevValue, prevDateValue;
+	        	var delta = Number.MAX_VALUE;
+
+				var startTime = new Date().getTime();
+				
 	        	snap.forEach(function(reading) {
 	        		var dateValue = reading.child("date").val();
 	        		var readValue = reading.child("value").val();
-					powerValues.push(readValue);
-					dateValues.push(dateValue);
+					//powerValues.push(readValue);
+					//dateValues.push(dateValue);
+
+					setTimeValue(dateValue, readValue);
 	        	});
 
+	        	var endTime = new Date().getTime();				
+				console.log('Loaded ' + dateValues.length + ' values for ' + name + ' in: ' + (endTime - startTime));
+
+				//var endTime = new Date().getTime();				
+				//console.log('Execution time for ' + name + ': ' + (endTime - startTime));
+
+	        	function setTimeValue(dateValue, readValue) {
+	        		if(currentIndex <= steps) {
+						var newDelta = Math.abs(targetTimeValue - dateValue);
+						if(newDelta < delta) {
+							delta = newDelta;
+						} else {
+							if(prevValue == undefined) {
+								prevValue = readValue;
+								//prevDateValue = dateValue;
+							}
+							targetValues.push(prevValue);
+
+							currentIndex += 1;
+							targetTimeValue += step;
+
+//							delta = Math.abs(targetTimeValue - dateValue);
+
+							// Check if the next timestamp is 
+							delta = Math.abs(targetTimeValue - prevDateValue);
+							newDelta = Math.abs(targetTimeValue - dateValue);
+							if(newDelta >= delta) {
+								setTimeValue(dateValue); 
+							} else {
+								delta = newDelta;
+							}
+							
+						}
+						prevValue = readValue;
+						prevDateValue = dateValue;
+					}
+				}
+
+	        	var valueLen = targetValues.length;
+	        	console.log("Fetched values: " + valueLen + ", db values: " + dateValues.length); 
+	        	if(valueLen < steps) {
+	        		var lastValue = targetValues[valueLen-1];
+	        		for(var i = valueLen - 1; i < steps; i++) {
+	        			targetValues.push(lastValue);	        			
+	        		}
+	        	}
+	        	
+
+/*
 	        	var valueLen = powerValues.length;
 	        	//console.log("values: " + powerValues);
 	        	//console.log("total amount: " + valueLen + ", first: " + dateValues[0] + ": " + powerValues[0] + ", last:" + dateValues[valueLen-1] + ": " + powerValues[valueLen-1]);
@@ -44,7 +100,6 @@
 	        	}
 
 //				var startTime = new Date().getTime();
-
 				var valueSum = 0;
 	        	for(var goal = start; goal <= stop; goal += step) {
 	        		// Find a reading which is closest to the requested timestamp
@@ -53,11 +108,12 @@
 					targetValues.push(closestValue);
 					valueSum += +closestValue;
 	        	}
-	        	titleCallback(name, name + ": " + (valueSum/1000).toFixed(1));
-	        	//console.log("targetValues: " + targetValues);
-	        	
-//	        	var endTime = new Date().getTime();				
-//				console.log('Execution time for ' + name + ': ' + (endTime - startTime));
+	        	titleCallback(name, name + ": " + (valueSum/1000).toFixed(1));	        	
+	        	//console.log("targetValues: " + targetValues);	        	
+*/
+	        	var endTime = new Date().getTime();				
+				console.log('Execution time for ' + name + ': ' + (endTime - startTime));
+
 				
 				callback(null, targetValues);
 
@@ -98,7 +154,7 @@
 		    
 		        //return ~maxIndex;
 		        // Get closest value
-		        var startIndex, endIndex = currentIndex;
+		        var startIndex = currentIndex, endIndex = currentIndex;
 		        if(currentIndex > 0) {
 		        	startIndex = currentIndex - 1;
 		        }
