@@ -96,7 +96,8 @@ angular.module('myApp.directives', [])
 				  .ticks(4).orient(d));
 			  });
 
-
+			// data min and max values
+			context.horizon().extent([0,100]);
 			vis
 			  .selectAll(".horizon")
 			  .data(source_list.map(readings))
