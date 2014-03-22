@@ -20,6 +20,7 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider', 'ui.boo
     $scope.ghDataOffset = 0;    
 	  
 	  syncData('settings/filter').$bind($scope, 'ghDeviceNames');
+    
 	  syncData('settings/step').$bind($scope, 'ghStepSize');	  
 	  syncData('settings/datapoints').$bind($scope, 'ghDataPoints');
 	  syncData('settings/dataOffset').$bind($scope, 'ghDataOffset');
@@ -27,41 +28,6 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider', 'ui.boo
 	  $scope.sensors = syncData('settings/sensors');
 
     var filterString = syncData('settings/filter');
-    // Update time offset so to show latest value
-    filterString.$on("loaded", function() {
-         var name = $scope.ghDeviceNames.split(",")[0];
-         //console.log("Getting latest timestamp for sensor: " + name);
-
-         // get latest reading
-         var latestValue = syncData('readings/' + name, 1);
-         latestValue.$on("loaded", function() {
-          var latestEntry = getOneValue(latestValue);
-
-          if(latestEntry == undefined || latestEntry.date == undefined) {
-             console.log("No latest sensor data for " + name + " found.");
-             return;
-          }
-          var timeDiff = Date.now() - latestEntry.date;
-
-          var timeOffset = (timeDiff / 1000 / 60);
-          // If current time offset setting will not show any value
-          if(timeOffset > +$scope.ghStepSize && +$scope.ghDataOffset < timeOffset ) {
-             console.log("Auto changing time offset to latest values for " + name + " to: " + timeOffset);               
-             $scope.ghDataOffset = timeOffset.toFixed(0);
-             $scope.dt = latestEntry.date;
-          }
-        });
-     });
-
-     function getOneValue(items) {
-            var returnValue;
-            items.$getIndex().some(function(key, i) { 
-               // Any value will do
-               returnValue = items[key];
-               return true;
-            });
-            return returnValue;
-     }
 
 
     var dataOffset =  syncData('settings/dataOffset');
@@ -112,9 +78,10 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider', 'ui.boo
       });    
     });
 
-    
+/*
+  // Deprecated by mouseUp event  
     $scope.$watchCollection('[ghMinSlider, ghHourSlider, ghDaySlider]', function() {
-      delayedUpdate();
+      //delayedUpdate();
     }, true);
 
     var delay;
@@ -131,12 +98,14 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider', 'ui.boo
         $timeout.cancel(timerFunction);
       }
     }
+    */
 
     function updateStepSeconds() {
       var periodInSeconds = $scope.ghDaySlider * 24 * 60 * 60 + $scope.ghHourSlider * 60 * 60 + $scope.ghMinSlider * 60;
       $scope.ghStepSize = (periodInSeconds / $scope.ghDataPoints).toFixed(); 
     }
 
+    $scope.updateStepSeconds = updateStepSeconds;
 
     $scope.changedTime = function () { };
 
@@ -156,6 +125,51 @@ angular.module('myApp.controllers', ['firebase', 'vr.directives.slider', 'ui.boo
 
       $scope.calOpened = true;
     };
+
+
+    $scope.calScrollLatest = function($event) {
+      $event.preventDefault();
+      $event.stopPropagation();
+
+      
+      // Update time offset so to show latest value
+      filterString.$on("loaded", function() {
+           var name = $scope.ghDeviceNames.split(",")[0];
+           //console.log("Getting latest timestamp for sensor: " + name);
+
+           // get latest reading
+           var latestValue = syncData('readings/' + name, 1);
+           latestValue.$on("loaded", function() {
+            var latestEntry = getOneValue(latestValue);
+
+            if(latestEntry == undefined || latestEntry.date == undefined) {
+               console.log("No latest sensor data for " + name + " found.");
+               return;
+            }
+            var timeDiff = Date.now() - latestEntry.date;
+
+            var timeOffset = (timeDiff / 1000 / 60);
+            // If current time offset setting will not show any value
+            if(timeOffset > +$scope.ghStepSize && +$scope.ghDataOffset < timeOffset ) {
+               console.log("Auto changing time offset to latest values for " + name + " to: " + timeOffset);               
+               $scope.ghDataOffset = timeOffset.toFixed(0);
+               $scope.dt = latestEntry.date;
+            }
+          });
+       });
+
+       function getOneValue(items) {
+              var returnValue;
+              items.$getIndex().some(function(key, i) { 
+                 // Any value will do
+                 returnValue = items[key];
+                 return true;
+              });
+              return returnValue;
+       }
+     
+    };
+    
 
 /*
      // Get sensor config

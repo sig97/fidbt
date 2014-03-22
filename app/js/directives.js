@@ -48,17 +48,25 @@ angular.module('myApp.directives', [])
 			serverDelay = +newOffset;
 
 			vis.selectAll('*').remove();
-			if(context) {context.stop(); context = null; }
+			if(context) {
+				context.stop(); context = null; 
+			}
 			if (!(+newStepSize > 0 && +newDataSize > 0)) {
 				return;
 			}
 			
+			if(serverDelay > stepSize) {
 			context = cubism.context()
 				.step(stepSize) // Distance between data points in milliseconds
 				.size(dataSize) // Number of data points
 				.serverDelay(serverDelay)
 				.stop(); // Skip live updates for historical data 
-			
+			} else {
+				context = cubism.context()
+				.step(stepSize) // Distance between data points in milliseconds
+				.size(dataSize) // Number of data points
+				.serverDelay(serverDelay);
+			}
 
 				
 			// On mousemove, reposition the chart values to match the rule.
@@ -91,13 +99,14 @@ angular.module('myApp.directives', [])
 				return d + " axis"; // top axis and bottom axis
 			  }) // respectively
 			  .each(function(d) { // For each of these axes,
-				d3.select(this) // draw the axes with 4 intervals
+				d3.select(this) // draw the axes with 5 intervals
 				  .call(context.axis() // and place them in their proper places
-				  .ticks(4).orient(d));
+				  .ticks(5).orient(d));
 			  });
 
 			// data min and max values
 			context.horizon().extent([0,100]);
+			
 			vis
 			  .selectAll(".horizon")
 			  .data(source_list.map(readings))
@@ -132,8 +141,7 @@ angular.module('myApp.directives', [])
 				return;
 			}
 			elm[0].setAttribute('devices', newVal);
-			//createContext(6e4, 400);
-			createContext(stepSize, dataSize, serverDelay);
+			//createContext(stepSize, dataSize, serverDelay);
 			redraw_graph();
 		});
 		

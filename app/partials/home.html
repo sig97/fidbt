@@ -40,7 +40,7 @@
 
 		<div class="row">
 			<div class="col-sm-4 col-sm-push-8" >
-				<div ng-model="dt" ng-change="changedTime()" >
+				<div ng-model="dt" ng-change="changedTime()" tooltip="Change time" tooltip-placement="right">
 					<timepicker hour-step="hstep" minute-step="mstep" show-meridian="false"></timepicker>
 				</div>
 			</div>
@@ -48,7 +48,8 @@
 				<span class="input-group-addon" tooltip="Showing values until this date">End date:</span>
 		        <input type="text" class="form-control" datepicker-popup="{{dateFormat}}" ng-model="dt" is-open="calOpened" ng-required="true" close-text="Close" datepicker-options="dateOptions" />
 		        <span class="input-group-btn">
-		        	<button class="btn btn-default" ng-click="calOpen($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+		        	<button class="btn btn-default" ng-click="calScrollLatest($event)" tooltip="Find latest sensor values"><i class="glyphicon glyphicon-step-forward"></i></button>
+		        	<button class="btn btn-default" ng-click="calOpen($event)" tooltip="Change date"><i class="glyphicon glyphicon-calendar"></i></button>		        	
 		        </span>
 		    </div>		
 		</div>
@@ -56,6 +57,7 @@
 		<div>
 			<slider
 			    ng-model="ghMinSlider"
+			    ng-mouseup = "updateStepSeconds()"
 			    floor="0"
 			    ceiling="50"
 			    step="{{mstep}}"
@@ -65,6 +67,7 @@
 			</slider>
 			<slider
 			    ng-model="ghHourSlider"
+			    ng-mouseup = "updateStepSeconds()"
 			    floor="0"
 			    ceiling="23"
 			    step="1"
@@ -74,6 +77,7 @@
 			</slider>
 			<slider
 			    ng-model="ghDaySlider"
+			    ng-mouseup = "updateStepSeconds()"
 			    floor="0"
 			    ceiling="14"
 			    step="1"
